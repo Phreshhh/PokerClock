@@ -1,0 +1,36 @@
+{
+  "name": "phresh-poker-clock",
+  "version": "1.0.0",
+  "productName": "Phresh Poker Clock",
+  "description": "Poker clock.",
+  "author": "Phresh",
+  "copyright": "© 2018, Krisztián Kis - Phresh-IT",
+  "homepage": "http://phresh-it.hu/apps/pokerclock/",
+  "repository": "https://github.com/Phreshhh/PokerClock/",
+  "license": "MIT",
+  "keywords": [
+    "Electron",
+    "Phresh",
+    "Poker",
+    "clock",
+    "card",
+    "game"
+  ],
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack-win32": "electron-packager . PokerClock --platform=win32 --arch=x32 --asar --out dist --overwrite --icon ./ppcapp/img/ppcicon.ico",
+    "pack-win": "electron-packager . PokerClock --platform=win32 --arch=x64 --asar --out dist --overwrite --icon ./ppcapp/img/ppcicon.ico",
+    "pack-lin": "electron-packager . PokerClock --platform=linux --arch=x64 --asar --out dist --overwrite --icon ./ppcapp/img/ppcicon.png",
+    "pack-mac": "electron-packager . PokerClock --platform=darwin --arch=x64 --asar --out dist  --overwrite --icon ./ppcapp/img/ppcicon.icns"
+  },
+  "dependencies": {
+    "electron-store": "1.3.0",
+    "electron-window-state": "4.1.1",
+    "nedb": "1.8.0"
+  },
+  "devDependencies": {
+    "electron": "~1.6.2",
+    "electron-packager": "10.1.2"
+  }
+}

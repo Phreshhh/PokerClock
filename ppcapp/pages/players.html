@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phresh's Poker Clock - Players</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script>
+      const i18n = new(require('../../locales/i18n'));
+    </script>
+  </head>
+  <body class="webviewbody">
+    <form class="uk-grid-small" uk-grid>
+      <div class="uk-width-1-6@s" style="padding:10px 0 0 20px;">
+        <label class="uk-form-label uk-margin-top" for="selectapplang"><script>document.write(i18n.__('newplayer'));</script></label>
+      </div>
+      <div class="uk-width-1-4@s">
+        <input id="newplayername" class="uk-input" type="text" />
+      </div>
+      <div class="uk-width-1-6@s">
+        <button class="uk-button uk-button-primary" onclick="savePlayer();"><script>document.write(i18n.__('add'));</script></button>
+      </div>
+      <div class="uk-width-1-1">&nbsp;</div>
+    </form>
+    
+    <ul id="playerlist" class="uk-list uk-list-divider">
+      <!-- read avilable players and fill the list -->
+    </ul>
+  </body>
+  <script>
+  const Datastore = require('nedb');
+
+  const electron = require('electron');
+  const {remote} = require('electron');
+  const app = electron.app || electron.remote.app;
+  const appDir = app.getPath('userData');
+  
+  const players = new Datastore({ filename: appDir + '/db/players.db', autoload: true });
+
+  let playerItems = '';
+  function getPlayers() {
+    players.find({}).sort({ _name: 1 }).exec(function(err, docs) { 
+      docs.forEach(function(d) {
+        console.log('Found player:', d._name);
+        playerItems += '<li class="uk-animation-slide-bottom">' + d._name + '<button class="uk-button uk-button-danger uk-float-right onclick="deletePlayer(' + d._id + ');">' + i18n.__('delete') + '</button></li>';
+      });
+      document.getElementById('playerlist').innerHTML = playerItems;
+    });
+  }
+  getPlayers();
+
+  function savePlayer() {
+
+    let playername = document.getElementById('newplayername').value;
+
+    if (playername !== undefined && playername !== "") {
+
+      players.find({}).sort({ _id: -1 }).limit(1).exec(function (err, docs) {
+    
+        let newid = 0;
+
+        docs.forEach(function(doc) {
+          newid = doc._id + 1;
+        });
+
+        if (newid === 0) {
+          newid = 1;
+        }
+
+        /* insert */
+
+        let newplayers = [];
+          
+        let newplayer = {  
+          _id: newid,
+          _name: playername
+        };
+        
+        newplayers.push(newplayer);
+        
+        players.insert(newplayers, function(err, docs) {  
+          docs.forEach(function(d) {
+            console.log('Saved player:', d._name);
+          });
+          getPlayers();
+        });
+
+      });
+
+    }
+  }
+    
+  function deletePlayer(playerid) {
+    players.remove({ _id: playerid }, function(err, numDeleted) {  
+     console.log('Deleted: ', numDeleted, 'player(s)');
+     document.location.reload(true);
+    });
+  }
+  </script>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phresh's Poker Clock</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="img/ppcicon.ico" />
+    <link rel="stylesheet" href="css/uikit.min.css" />
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <script>
+      const i18n = new(require('../locales/i18n'));
+    </script>
+  </head>
+  <body>
+
+    <nav class="uk-navbar-container" uk-navbar>
+      <div class="uk-navbar-center">
+        <div class="uk-navbar-center-left">
+          <div>
+            <ul class="uk-navbar-nav">
+              <li id="setupmatch" class="menuli">
+                <a href="#" onclick="goTo('setupmatch');">
+                  <span class="uk-margin-small-right" uk-icon="icon: file-edit"></span>
+                  <script>document.write(i18n.__('setupmatch'));</script>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <a class="uk-navbar-item uk-logo" href="#" style="margin:0 60px;">
+          <img id="navlogo" class="navlogo" src="img/token_logo.png" onmouseover="this.src='img/token_hover_logo.png';" onmouseout="this.src='img/token_logo.png';" onclick="goTo('welcome');" alt="Logo" />
+        </a>
+
+        <div class="uk-navbar-center-right">
+          <div>
+            <ul class="uk-navbar-nav">
+              <li id="settings" class="menuli">
+                <a href="#">
+                  <span class="uk-margin-small-right" uk-icon="icon: settings"></span>
+                  <script>document.write(i18n.__('settings'));</script>
+                </a>
+                <div class="uk-navbar-dropdown">
+                  <ul class="uk-nav uk-navbar-dropdown-nav">
+                    <li id="players" class="menuli">
+                      <a href="#" onclick="goTo('players');">
+                        <span class="uk-margin-small-right" uk-icon="icon: users"></span>
+                        <script>document.write(i18n.__('players'));</script>
+                      </a>
+                    </li>
+                    <li id="tokens" class="menuli">
+                      <a href="#" onclick="goTo('tokens');">
+                        <span class="uk-margin-small-right" uk-icon="icon: database"></span>
+                        <script>document.write(i18n.__('tokens'));</script>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li id="language" class="menuli">
+                <a href="#">
+                  <span class="uk-margin-small-right" uk-icon="icon: commenting"></span>
+                  <script>document.write(i18n.__('language'));</script>
+                </a>
+                <div class="uk-navbar-dropdown">
+                  <ul id="applang" class="uk-nav uk-navbar-dropdown-nav">
+                    <!-- read avilable languages and fill the list -->
+                  </ul>
+                </div>
+              </li>
+              <li class="menuli">
+                <a href="#">
+                  <span class="uk-margin-small-right" uk-icon="icon: info"></span>
+                  <script>document.write(i18n.__('about'));</script>
+                </a>
+                <div class="uk-navbar-dropdown">
+                  <ul class="uk-nav uk-navbar-dropdown-nav">
+                    <li>
+                      <a href="#" onmouseover="showPokerHands('show');" onmouseout="showPokerHands('hide');">
+                        <span class="uk-margin-small-right" uk-icon="icon: image"></span>
+                        <script>document.write(i18n.__('listofpokerhands'));</script>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" onclick="openExternallink('pokerclock');">
+                        <span class="uk-margin-small-right" uk-icon="icon: link"></span>
+                        Poker Clock
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" onclick="openExternallink('phreshit');">
+                        <span class="uk-margin-small-right" uk-icon="icon: link"></span>
+                        Phresh-IT
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" onclick="openExternallink('electron');">
+                        <span class="uk-margin-small-right" uk-icon="icon: link"></span>
+                        Electron
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="pokerhands" class="uk-animation-scale-up"></div>
+
+    <webview id="contentframe" src="pages/welcome.html" nodeintegration></webview>
+
+  </body>
+  <script>
+    function showPokerHands(displaying) {
+
+      let pokerhandsdiv = document.getElementById('pokerhands');
+
+      switch(displaying) {
+        case "show":
+          pokerhandsdiv.style.display = "block";
+          break;
+        case "hide":
+          pokerhandsdiv.style.display = "none";
+          break;
+
+        default:
+          pokerhandsdiv.style.display = "none";
+          break;
+      }
+
+    }
+    function goTo(page) {
+
+      let settingsmainmenu = document.getElementById('settings');
+      let menulis = document.getElementsByClassName('menuli');
+
+      let i;
+      
+      for (i = 0; i < menulis.length; i++) {
+        removeClass(menulis[i], 'uk-active');
+      }
+
+      for (i = 0; i < menulis.length; i++) {
+
+        let menuliid = menulis[i].id;
+  
+        if (page !== "setupmatch" && page !== "play") {
+          addClass(settingsmainmenu, 'uk-active');
+        }
+
+        if (page === menuliid) {
+          addClass(menulis[i], 'uk-active');
+        }
+
+      }
+
+      document.getElementById('contentframe').src = 'pages/' + page + '.html';
+      console.log(page + ' page loaded.');
+
+    }
+
+    function hasClass(elem, className) {
+      if (elem.classList) {
+        return elem.classList.contains(className);
+      } else {
+        return !!elem.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
+      }
+    }
+    function addClass(elem, className) {
+      if (elem.classList) {
+        elem.classList.add(className);
+      } else if (!hasClass(elem, className)) {
+        elem.className += " " + className;
+      }
+    }
+    function removeClass(elem, className) {
+      if (elem.classList) {
+        elem.classList.remove(className);
+      } else if (hasClass(elem, className)) {
+        let reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+        elem.className=elem.className.replace(reg, ' ');
+      }
+    }
+
+    function openExternallink(gotohomepage) {
+      switch (gotohomepage) {
+        case "pokerclock":
+          require('electron').shell.openExternal('http://phresh-it.hu/apps/pokerclock');
+          break;
+        case "phreshit":
+          require('electron').shell.openExternal('http://phresh-it.hu/');
+          break;
+        case "electron":
+          require('electron').shell.openExternal('https://electronjs.org/');
+          break;
+      }
+    }
+
+    const webview = document.querySelector('webview');
+    
+    /* webview.addEventListener('dom-ready', () => {
+      webview.openDevTools();
+    }); */
+
+    webview.addEventListener('ipc-message', (event) => {
+      
+      let notifyType = event.args[0];
+      let notifyMsg = event.args[1];
+
+      if (event.channel == "uknofify-dealing") {
+        UIkit.notification({message: notifyMsg, status: notifyType, pos: 'top-right'});
+      }
+      if (event.channel == "uknofify-blind-call") {
+        UIkit.notification({message: notifyMsg, status: notifyType, pos: 'top-right'});
+      }
+      if (event.channel == "uknofify-rebuy") {
+        UIkit.notification({message: notifyMsg, status: notifyType, pos: 'top-right'});
+      }
+    });
+
+    const electron = require('electron');
+    const {remote} = require('electron');
+    const app = electron.app || electron.remote.app;
+
+    const Store = require('electron-store');
+    const store = new Store();
+
+    const fs = require('fs');
+    const path = require('path');
+    let langOptions = '';
+
+    let storedLanguage = 'en';
+
+    if (store.has('settings.language')) {
+      storedLanguage = store.get('settings.language');
+    } else {
+      store.set('settings.language', 'en');
+    }
+
+    fs.readdir(path.join(__dirname, '..', 'locales'), (err, dir) => {
+
+      if (err) {
+        alert(err);
+      } else {
+
+        console.log('Language files:');
+        
+        for (let file of dir) {
+          
+          let filenameParts = file.split('.');
+          if (filenameParts[1] === "json") {
+
+            console.log(file);
+            
+            if (filenameParts[0] !== storedLanguage) {
+              langOptions += '<li style="cursor:pointer;" onclick="setLanguage(\'' + filenameParts[0] + '\');">' + filenameParts[0] + '</li>';
+            }
+            
+          }
+          
+        }
+        
+      }
+      
+      document.getElementById('applang').innerHTML = langOptions;
+
+    });
+
+    function setLanguage(language) {
+      store.set('settings.language', language);
+      alert(i18n.__('requiresrestart'));
+      app.relaunch();
+      app.exit(0);
+    }
+  </script>
+</html>

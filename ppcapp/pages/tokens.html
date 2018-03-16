@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phresh's Poker Clock - Tokens</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script>
+      const i18n = new(require('../../locales/i18n'));
+    </script>
+  </head>
+  <body class="webviewbody">
+    <form class="uk-grid-small" uk-grid>
+      <div class="uk-width-1-3@s" style="padding:10px 0 0 20px;">
+        <label class="uk-form-label uk-margin-top" for="selectapplang"><script>document.write(i18n.__('newtoken'));</script></label>
+      </div>
+      <div class="uk-width-1-6@s">
+        <input id="newtokenvalue" class="uk-input" type="number" />
+      </div>
+      <div class="uk-width-1-6@s">
+        <input id="newtokencolor" class="uk-input" type="color" />
+      </div>
+      <div class="uk-width-1-6@s">
+        <input id="newtokenpiece" class="uk-input" type="number" />
+      </div>
+      <div class="uk-width-1-6@s">
+        <button class="uk-button uk-button-primary uk-float-right" onclick="saveToken();"><script>document.write(i18n.__('add'));</script></button>
+      </div>
+      <div class="uk-width-1-1">&nbsp;</div>
+    </form>
+    
+    <ul id="tokenlist" class="uk-list uk-list-divider">
+      <!-- read avilable tokens and fill the list -->
+    </ul>
+  </body>
+  <script>
+  const Datastore = require('nedb');
+  const electron = require('electron');
+  const {remote} = require('electron');
+  const app = electron.app || electron.remote.app;
+  const appDir = app.getPath('userData');
+  
+  const tokens = new Datastore({ filename: appDir + '/db/tokens.db', autoload: true });
+
+  let tokenItems = '';
+  function getTokens() {
+    tokens.find({}).sort({ _value: 1, _piece: 1 }).exec(function (err, docs) {
+      docs.forEach(function(d) {
+        console.log('Found token:', d._value, d._color, d._piece);
+        tokenItems += '<li class="uk-animation-slide-bottom"><div class="uk-float-left" style="width:80px;margin-top:7px;">' + d._value + '</div><img src="../img/token.png" style="width:40px;height:40px;margin:0 20px;border-radius:50%;background-color:' + d._color + ';" alt="" /><span style="margin-left:100px;">' + i18n.__('piece') + ': ' + d._piece + '</span><button class="uk-button uk-button-danger uk-float-right" onclick="deleteToken(' + d._id + ');">' + i18n.__('delete') + '</button></li>';
+      });
+      document.getElementById('tokenlist').innerHTML = tokenItems;
+    });
+  }
+  getTokens();
+
+  function saveToken() {
+
+    let tokenvalue = document.getElementById('newtokenvalue').value;
+    let tokencolor = document.getElementById('newtokencolor').value;
+    let tokenpiece = document.getElementById('newtokenpiece').value;
+
+    if (tokenvalue !== undefined && tokenvalue !== "" && tokenpiece !== undefined && tokenpiece !== "") {
+
+      tokens.find({}).sort({ _id: -1 }).limit(1).exec(function (err, docs) {
+    
+        let newid = 0;
+
+        docs.forEach(function(doc) {
+          newid = doc._id + 1;
+        });
+
+        if (newid === 0) {
+          newid = 1;
+        }
+
+        /* insert */
+
+        let newtokens = [];
+          
+        let newtoken = {  
+          _id: newid,
+          _value: parseInt(tokenvalue),
+          _color: tokencolor,
+          _piece: parseInt(tokenpiece)
+        };
+        
+        newtokens.push(newtoken);
+        
+        tokens.insert(newtokens, function(err, docs) {  
+          docs.forEach(function(d) {
+            console.log('Saved token:', d._value, d._color, d._piece);
+          });
+          getTokens();
+        });
+
+      });
+
+    }
+  }
+    
+  function deleteToken(tokenid) {
+    tokens.remove({ _id: tokenid }, function(err, numDeleted) {  
+     console.log('Deleted: ', numDeleted, 'token(s)');
+     document.location.reload(true);
+    });
+  }
+  </script>
+</html>

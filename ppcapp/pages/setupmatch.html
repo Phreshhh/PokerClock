@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phresh's Poker Clock - Setup match</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script>
+      const i18n = new(require('../../locales/i18n'));
+    </script>
+  </head>
+  <body class="webviewbody">
+    <form class="uk-grid-small" uk-grid>
+      <div class="uk-width-1-4@s">
+          <script>document.write(i18n.__('selectplayers'));</script>
+      </div>
+      <div class="uk-width-1-4@s">
+          <script>document.write(i18n.__('selecttokens'));</script>
+      </div>
+      <div class="uk-width-1-4@s">
+          <script>document.write(i18n.__('blinds'));</script>
+      </div>
+      <div class="uk-width-1-4@s">
+          <script>document.write(i18n.__('betsandrebuys'));</script>
+      </div>
+
+      <div class="uk-width-1-4@s">
+        <ul id="playerlist" class="uk-list uk-list-divider">
+          <!-- read avilable players and fill the list -->
+        </ul>
+      </div>
+      <div class="uk-width-1-4@s">
+        <ul id="tokenlist" class="uk-list uk-list-divider">
+          <!-- read avilable tokens and fill the list -->
+        </ul>
+      </div>
+      <div class="uk-width-1-4@s">
+        <ul id="blindslist" class="uk-list uk-list-divider">
+          <li>
+            <input id="fix-blinds" class="radiolabel blindlabels uk-animation-fade" onchange="checkGameReady();" type="radio" name="blind-type" value="fix-blinds" />
+            <label for="fix-blinds" class="uk-form-label radiolabel-label uk-animation-fade" title="5, 10"><script>document.write(i18n.__('fixblinds'));</script></label>
+          </li>
+          <li>
+            <input id="gradual-blinds" class="radiolabel blindlabels uk-animation-fade" onchange="checkGameReady();" type="radio" name="blind-type" value="gradual-blinds" checked />
+            <label for="gradual-blinds" class="uk-form-label radiolabel-label uk-animation-fade" title="5, 10 - 10, 25 .."><script>document.write(i18n.__('gradualblinds'));</script></label>
+          </li>
+          <li>
+            <input id="tokenpair-blinds" class="radiolabel blindlabels uk-animation-fade" onchange="checkGameReady();" type="radio" name="blind-type" value="tokenpair-blinds" />
+            <label for="tokenpair-blinds" class="uk-form-label radiolabel-label uk-animation-fade" title="5, 10 - 25, 50 .."><script>document.write(i18n.__('tokenpairblinds'));</script></label>
+          </li>
+        </ul>
+        <hr class="uk-divider-icon">
+        <label for="blindlift" class="uk-form-label uk-animation-fade"><script>document.write(i18n.__('blindlift'));</script></label>
+        <input id="blindlift" class="uk-input uk-animation-fade" type="number" placeholder="15" value="15" />
+      </div>
+      <div class="uk-width-1-4@s">
+        <input id="bets" class="uk-input uk-animation-fade" type="number" placeholder="0" />
+        <select id="rebuys" class="uk-select uk-animation-fade" id="form-horizontal-select">
+          <option value="0" selected><script>document.write(i18n.__('rebuys'));</script> (0)</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+        <button id="playbutton" class="uk-button uk-button-primary uk-animation-shake" style="margin-top:30px;width:100%;display:none;" onclick="createGame();" type="button"><script>document.write(i18n.__('play'));</script></button>
+      </div>
+    </form>
+  </body>
+  <script>
+  const Datastore = require('nedb');
+
+  const electron = require('electron');
+  const {remote} = require('electron');
+  const app = electron.app || electron.remote.app;
+  const appDir = app.getPath('userData');
+  
+  const tokens = new Datastore({ filename: appDir + '/db/tokens.db', autoload: true });
+  const players = new Datastore({ filename: appDir + '/db/players.db', autoload: true });
+  const game = new Datastore({ filename: appDir + '/db/game.db', autoload: true });
+
+  let playerItems = '';
+  function getPlayers() {
+    players.find({}).sort({ _name: 1 }).exec(function(err, docs) {
+      docs.forEach(function(d) {
+        console.log('Found player:', d._name);
+        playerItems += '<li class="uk-animation-slide-bottom"><input id="player-' + d._id + '" class="checkboxlabel playerlabels" onchange="checkGameReady();" type="checkbox" value="' + d._id + '" /><label for="player-' + d._id + '" title="' + d._name + '" class="uk-form-label checkboxlabel-label">' + d._name + '</label></li>';
+      });
+      document.getElementById('playerlist').innerHTML = playerItems;
+    });
+  }
+  getPlayers();
+
+  let tokenItems = '';
+  let tokenItemsCount = 0;
+  function getTokens() {
+    tokens.find({}).sort({ _value: 1, _piece: 1 }).exec(function (err, docs) {
+      docs.forEach(function(d) {
+
+        tokenItemsCount++;
+        console.log('Found token:', d._value, d._color);
+
+        if (tokenItemsCount < 6) {
+          tokenItems += '<li class="uk-animation-slide-bottom"><input id="token-' + d._id + '" class="checkboxlabel tokenlabels" onchange="checkGameReady();" type="checkbox" value="' + d._id + '" checked /><label for="token-' + d._id + '" title="' + d._value + '" class="uk-form-label checkboxlabel-label">' + d._value + '<img src="../img/token.png" style="width:24px;height:24px;float:right;border-radius:50%;position:relative;background-color:' + d._color + ';" alt="" /></label></li>';
+        } else {
+          tokenItems += '<li class="uk-animation-slide-bottom"><input id="token-' + d._id + '" class="checkboxlabel tokenlabels" onchange="checkGameReady();" type="checkbox" value="' + d._id + '" /><label for="token-' + d._id + '" title="' + d._value + '" class="uk-form-label checkboxlabel-label">' + d._value + '<img src="../img/token.png" style="width:24px;height:24px;float:right;border-radius:50%;position:relative;background-color:' + d._color + ';" alt="" /></label></li>';
+        }
+
+      });
+      document.getElementById('tokenlist').innerHTML = tokenItems;
+    });
+  }
+  getTokens();
+
+  function checkGameReady() {
+
+    let playerlabels = document.getElementsByClassName('playerlabels');
+    let tokenlabels = document.getElementsByClassName('tokenlabels');
+    let blindlabels = document.getElementsByClassName('blindlabels');
+
+    let i;
+    let readyplayers = 0;
+    
+    for (i = 0; i < playerlabels.length; i++) {
+
+      if (playerlabels[i].checked) {
+        readyplayers++;
+      }
+
+    }
+
+    let readytokens = 0;
+    
+    for (i = 0; i < tokenlabels.length; i++) {
+
+      if (tokenlabels[i].checked) {
+        readytokens++;
+      }
+
+    }
+
+    for (i = 0; i < blindlabels.length; i++) {
+
+      if (blindlabels[i].checked) {
+        blindtype = blindlabels[i].value;
+        break;
+      }
+
+    }
+
+    let playbutton = document.getElementById("playbutton");
+
+    if (readyplayers > 1 && readytokens === 5 && blindtype !== "") {
+      playbutton.style.display = 'block';
+    } else {
+      playbutton.style.display = 'none';
+    }
+
+  }
+
+  let playersready = [];
+  let tokensready = [];
+  let blindtype = "";
+  let blindlift = 0;
+  let bets = 0;
+  let rebuys = 0;
+
+  function createGame() {
+
+    let playerlabels = document.getElementsByClassName('playerlabels');
+    let tokenlabels = document.getElementsByClassName('tokenlabels');
+    let blindlabels = document.getElementsByClassName('blindlabels');
+
+    let i, playerIDs, tokenIDs;
+    
+    for (i = 0; i < playerlabels.length; i++) {
+      
+      if (playerlabels[i].checked) {
+        
+        if (playerIDs === undefined) {
+          playerIDs = playerlabels[i].value;
+        } else {
+          playerIDs += ',' + playerlabels[i].value;
+        }
+
+      }
+      
+    }
+    
+    for (i = 0; i < tokenlabels.length; i++) {
+
+      if (tokenlabels[i].checked) {
+
+        if (tokenIDs === undefined) {
+          tokenIDs = tokenlabels[i].value;
+        } else {
+          tokenIDs += ',' + tokenlabels[i].value;
+        }
+
+      }
+
+    }
+
+    for (i = 0; i < blindlabels.length; i++) {
+
+      if (blindlabels[i].checked) {
+        blindtype = blindlabels[i].value;
+        break;
+      }
+
+    }
+
+    if (blindtype === "fix-blinds") {
+      blindlift = 0;
+    } else {
+      blindlift = parseInt(document.getElementById("blindlift").value);
+    }
+
+    if (document.getElementById("bets").value) {
+      bets = parseInt(document.getElementById("bets").value);
+    }
+
+    let rebuysselect = document.getElementById("rebuys");
+    rebuys = parseInt(rebuysselect[rebuysselect.selectedIndex].value);
+
+    game.remove({}, function(err, numDeleted) {
+     
+      let newgameArr = [];
+      
+      let newgameObj = {
+        _players: playerIDs,
+        _tokens: tokenIDs,
+        _blindtype: blindtype,
+        _blindlift: blindlift,
+        _bets: bets,
+        _rebuys: rebuys
+      };
+
+      newgameArr.push(newgameObj);
+      
+      game.insert(newgameArr, function(err, docs) {  
+        docs.forEach(function(d) {
+          console.log("Game saved. ID: " + d._id);
+          document.location.href = 'play.html';
+        });
+      });
+
+    });
+
+  }  
+  </script>
+</html>
