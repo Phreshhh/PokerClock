@@ -25,13 +25,13 @@ Sometimes I forgot about I'm the one of the blinds.. and you?
 
 ## Screenshots
 
-![Welcome screen](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/welcome.jpg)
-![Tokens](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/tokens.jpg)
-![Players](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/players.jpg)
-![Match setup](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/setup_match.jpg)
-![Game 1](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/game0.jpg)
-![Game 2](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/game1.jpg)
-![Game 3](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/screenshots/game2.jpg)
+![Welcome screen](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/welcome.jpg)
+![Tokens](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/tokens.jpg)
+![Players](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/players.jpg)
+![Match setup](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/setup_match.jpg)
+![Game 1](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/game0.jpg)
+![Game 2](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/game1.jpg)
+![Game 3](https://github.com/Phreshhh/PokerClock/blob/master/screenshots/game2.jpg)
 
 ## Licence
 Copyright (c) 2018, Krisztián Kis - Phresh-IT. All rights reserved.
