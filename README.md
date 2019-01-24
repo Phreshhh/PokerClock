@@ -43,9 +43,9 @@ Licensed under the [MIT](https://github.com/Phreshhh/PokerClock/blob/master/LICE
 
 ## Web
 
-[Phresh-IT](http://phresh-it.hu/)
+[Phresh-IT](https://phresh-it.hu/)
 
-[Poker Clock](http://phresh-it.hu/apps/pokerclock/)
+[Poker Clock](https://phresh-it.hu/apps/pokerclock/)
 
 ## Dev
 
@@ -76,3 +76,9 @@ npm run pack-mac
 ```
 
 *Packaged zips not required installion, just unzip and run the executeable file.*
+
+### Support
+
+If you like my work(s), please buy me a coffee or support/donate me. Contributions, issues(problems, ideas) and [donates](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L3HSBGM4JTKEL&source=url) are welcome.
+
+Thank you, Have a nice day!
